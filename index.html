@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IM manage. Minimalist Store Inventory Management System">
+    <meta name="author" content="IMS566 Student Submission">
+    <title>IM manage. | Advanced Store Workspace</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 min-h-screen flex flex-col selection:bg-stone-200">
+
+    <div id="auth-view" class="active flex-grow flex items-center justify-center px-4 py-16">
+        <div class="bg-white border border-stone-200/80 p-8 rounded-xl max-w-sm w-full shadow-xs">
+            <div class="text-center mb-8">
+                <span class="text-[10px] uppercase tracking-widest text-stone-400 font-bold block mb-1">IMS566 Individual Project</span>
+                <h1 class="text-2xl font-bold tracking-tight text-stone-900">IM manage.</h1>
+                <p class="text-xs text-stone-500 mt-1">Store Management Workspace</p>
+            </div>
+            
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-1.5">Username</label>
+                    <input type="text" id="username" value="admin" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-stone-900 transition-colors text-sm" required>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold uppercase tracking-wider text-stone-500 mb-1.5">Password</label>
+                    <input type="password" id="password" value="admin123" class="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:border-stone-900 transition-colors text-sm" required>
+                </div>
+                
+                <div id="error-feedback" class="hidden bg-red-50 text-red-600 text-xs p-3 rounded-lg border border-red-100 font-medium">
+                    Authentication failed. Try: admin / admin123
+                </div>
+
+                <button type="submit" class="w-full bg-stone-900 text-white py-2.5 rounded-lg hover:bg-stone-800 transition-colors font-medium text-sm mt-2 cursor-pointer">
+                    Enter Workspace
+                </button>
+            </form>
+            <div class="mt-6 pt-4 border-t border-stone-100 text-center">
+                <p class="text-[11px] text-stone-400">Environment status: Hardcoded Demo mode active.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-workspace" class="view-section flex-grow flex flex-col">
+        
+        <nav class="bg-white border-b border-stone-200 sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center space-x-10">
+                        <span class="text-xl font-bold tracking-tight text-stone-900">IM manage.</span>
+                        <div class="hidden md:flex space-x-8 text-xs font-semibold tracking-wider uppercase">
+                            <button onclick="switchTab('dashboard')" id="nav-dashboard" class="text-stone-900 border-b-2 border-stone-900 py-5 cursor-pointer">Dashboard</button>
+                            <button onclick="switchTab('products')" id="nav-products" class="text-stone-400 hover:text-stone-900 py-5 transition-colors cursor-pointer">Stock Items</button>
+                            <button onclick="switchTab('suppliers')" id="nav-suppliers" class="text-stone-400 hover:text-stone-900 py-5 transition-colors cursor-pointer">Suppliers</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-[11px] font-medium px-2.5 py-1 bg-stone-100 text-stone-600 rounded">Admin Account</span>
+                        <button onclick="handleLogout()" class="text-xs font-medium text-stone-400 hover:text-red-600 transition-colors cursor-pointer">Logout</button>
+                        
+                        <button onclick="toggleMobileMenu()" class="md:hidden p-1.5 text-stone-600 hover:bg-stone-50 rounded-lg focus:outline-none">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden border-t border-stone-100 bg-white px-4 py-3 space-y-2">
+                <button onclick="switchTab('dashboard'); toggleMobileMenu();" class="block w-full text-left py-2 text-sm font-semibold text-stone-900">Dashboard</button>
+                <button onclick="switchTab('products'); toggleMobileMenu();" class="block w-full text-left py-2 text-sm font-medium text-stone-500">Stock Items</button>
+                <button onclick="switchTab('suppliers'); toggleMobileMenu();" class="block w-full text-left py-2 text-sm font-medium text-stone-500">Suppliers</button>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+            
+            <div id="view-dashboard" class="view-section active space-y-6">
+                <div class="border-b border-stone-200 pb-4">
+                    <h2 class="text-xl font-bold tracking-tight text-stone-900">Operational Overview</h2>
+                    <p class="text-xs text-stone-500">Summary analytics and live store asset counts.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 border border-stone-200 rounded-xl shadow-2xs">
+                        <span class="text-[11px] uppercase tracking-wider text-stone-400 font-bold">Total Physical Stock</span>
+                        <p class="text-2xl font-bold text-stone-900 mt-1">1,240 <span class="text-xs font-normal text-stone-400">units</span></p>
+                    </div>
+                    <div class="bg-white p-5 border border-stone-200 rounded-xl shadow-2xs">
+                        <span class="text-[11px] uppercase tracking-wider text-stone-400 font-bold">Gross Asset Valuation</span>
+                        <p class="text-2xl font-bold text-stone-900 mt-1">RM42,350.00</p>
+                    </div>
+                    <div class="bg-white p-5 border border-stone-200/80 rounded-xl shadow-2xs border-l-4 border-l-amber-500">
+                        <span class="text-[11px] uppercase tracking-wider text-amber-600 font-bold">Critical Threshold Deficits</span>
+                        <p class="text-2xl font-bold text-stone-900 mt-1">2 Line Items</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <div class="lg:col-span-7 bg-white p-5 border border-stone-200 rounded-xl shadow-2xs">
+                        <div class="mb-4">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500">Category Volume Dispersion</h3>
+                            <p class="text-[11px] text-stone-400">Proportional representation of physical stock inventory allocation.</p>
+                        </div>
+                        <div class="h-64 relative flex items-center justify-center">
+                            <canvas id="storeChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 bg-white p-5 border border-stone-200 rounded-xl shadow-2xs space-y-4">
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-stone-500">Procurement Run Priorities</h3>
+                            <p class="text-[11px] text-stone-400">Items matching or dipping under localized threshold safety rules.</p>
+                        </div>
+                        
+                        <div class="space-y-2.5">
+                            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 flex justify-between items-center">
+                                <div>
+                                    <p class="text-xs font-semibold text-stone-900">Walnut Office Desk</p>
+                                    <p class="text-[10px] font-mono text-stone-400">SKU: FUR-002</p>
+                                </div>
+                                <span class="px-2 py-0.5 bg-amber-50 text-amber-700 text-[11px] font-bold rounded border border-amber-200">3 units remain</span>
+                            </div>
+                            
+                            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 flex justify-between items-center">
+                                <div>
+                                    <p class="text-xs font-semibold text-stone-900">Ergonomic Mesh Chair</p>
+                                    <p class="text-[10px] font-mono text-stone-400">SKU: FUR-001</p>
+                                </div>
+                                <span class="px-2 py-0.5 bg-amber-50 text-amber-700 text-[11px] font-bold rounded border border-amber-200">5 units remain</span>
+                            </div>
+
+                            <div class="p-3 bg-stone-50 rounded-lg border border-stone-200 flex justify-between items-center opacity-60">
+                                <div>
+                                    <p class="text-xs font-semibold text-stone-700">USB-C Desktop Dock</p>
+                                    <p class="text-[10px] font-mono text-stone-400">SKU: TEC-411</p>
+                                </div>
+                                <span class="px-2 py-0.5 bg-stone-100 text-stone-600 text-[11px] font-medium rounded">110 units optimized</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="view-products" class="view-section space-y-6">
+                <div class="border-b border-stone-200 pb-4">
+                    <h2 class="text-xl font-bold tracking-tight text-stone-900">Store Core Catalog</h2>
+                    <p class="text-xs text-stone-500">Live operational directory showcasing active product levels and pricing models.</p>
+                </div>
+
+                <div class="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-2xs">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="bg-stone-50 border-b border-stone-200 text-stone-400 font-bold uppercase tracking-wider">
+                                    <th class="p-4">SKU Identity</th>
+                                    <th class="p-4">Item Description</th>
+                                    <th class="p-4">Classification Group</th>
+                                    <th class="p-4 text-right">Available Qty</th>
+                                    <th class="p-4 text-right">Value Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-stone-100 text-stone-600">
+                                <tr class="hover:bg-stone-50/40 transition-colors">
+                                    <td class="p-4 font-mono text-stone-900">FUR-001</td>
+                                    <td class="p-4 font-medium text-stone-900">Ergonomic Mesh Chair</td>
+                                    <td class="p-4">Office Furniture</td>
+                                    <td class="p-4 text-right text-amber-600 font-bold">5</td>
+                                    <td class="p-4 text-right font-mono">RM189.00</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50/40 transition-colors">
+                                    <td class="p-4 font-mono text-stone-900">FUR-002</td>
+                                    <td class="p-4 font-medium text-stone-900">Walnut Office Desk</td>
+                                    <td class="p-4">Office Furniture</td>
+                                    <td class="p-4 text-right text-amber-600 font-bold">3</td>
+                                    <td class="p-4 text-right font-mono">RM450.00</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50/40 transition-colors">
+                                    <td class="p-4 font-mono text-stone-900">LGT-089</td>
+                                    <td class="p-4 font-medium text-stone-900">Architect Brass Desk Lamp</td>
+                                    <td class="p-4">Lighting Equipment</td>
+                                    <td class="p-4 text-right font-medium">42</td>
+                                    <td class="p-4 text-right font-mono">RM85.00</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50/40 transition-colors">
+                                    <td class="p-4 font-mono text-stone-900">TEC-411</td>
+                                    <td class="p-4 font-medium text-stone-900">USB-C Desktop Docking Station</td>
+                                    <td class="p-4">Tech Accessories</td>
+                                    <td class="p-4 text-right font-medium">110</td>
+                                    <td class="p-4 text-right font-mono">RM129.00</td>
+                                </tr>
+                                <tr class="hover:bg-stone-50/40 transition-colors">
+                                    <td class="p-4 font-mono text-stone-900">PAP-012</td>
+                                    <td class="p-4 font-medium text-stone-900">Premium Matte A4 Ledger (Box)</td>
+                                    <td class="p-4">Stationery Assets</td>
+                                    <td class="p-4 text-right font-medium">1,080</td>
+                                    <td class="p-4 text-right font-mono">RM24.50</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-suppliers" class="view-section space-y-6">
+                <div class="border-b border-stone-200 pb-4">
+                    <h2 class="text-xl font-bold tracking-tight text-stone-900">Supply Network Matrix</h2>
+                    <p class="text-xs text-stone-500">Corporate registries of approved external procurement channels.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white border border-stone-200 p-5 rounded-xl space-y-3 shadow-2xs">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] font-mono text-stone-400">ID: SUP-01</span>
+                                <h3 class="font-bold text-stone-900 text-sm">Apex Logistics Group</h3>
+                            </div>
+                            <span class="px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-bold rounded">Verified</span>
+                        </div>
+                        <div class="text-xs space-y-1 text-stone-600 border-t border-stone-50 pt-2">
+                            <p><strong>Point Account:</strong> Ronaldo Suii</p>
+                            <p><strong>Hub Node:</strong> Sarawak, Malaysia</p>
+                            <p><strong>Fulfillment:</strong> Office Systems, Hardwood Modules</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-stone-200 p-5 rounded-xl space-y-3 shadow-2xs">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] font-mono text-stone-400">ID: SUP-02</span>
+                                <h3 class="font-bold text-stone-900 text-sm">Lumina Manufacturing</h3>
+                            </div>
+                            <span class="px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-bold rounded">Verified</span>
+                        </div>
+                        <div class="text-xs space-y-1 text-stone-600 border-t border-stone-50 pt-2">
+                            <p><strong>Point Account:</strong> David Martin</p>
+                            <p><strong>Hub Node:</strong> Shah Alam, Malaysia</p>
+                            <p><strong>Fulfillment:</strong> Studio Electronics & Desk Luminaries</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-stone-200 p-5 rounded-xl space-y-3 shadow-2xs">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="text-[10px] font-mono text-stone-400">ID: SUP-03</span>
+                                <h3 class="font-bold text-stone-900 text-sm">Nexus Distributions</h3>
+                            </div>
+                            <span class="px-2 py-0.5 bg-green-50 text-green-700 text-[10px] font-bold rounded">Verified</span>
+                        </div>
+                        <div class="text-xs space-y-1 text-stone-600 border-t border-stone-50 pt-2">
+                            <p><strong>Point Account:</strong> Kerabu Lusa</p>
+                            <p><strong>Hub Node:</strong> Penang, Malaysia</p>
+                            <p><strong>Fulfillment:</strong> High-density Silicon Hubs, Interfaces</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer class="bg-white border-t border-stone-200 py-6 text-[11px] text-stone-400 font-medium">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="font-bold text-stone-900 tracking-tight text-xs">IM manage.</span>
+                <span>&copy; 2026 Coursework Prototype Interface.</span>
+            </div>
+            <div class="flex space-x-6">
+                <span><strong>Framework:</strong> Tailwind CSS v4</span>
+                <span><strong>Target Client:</strong> Google Chrome Engine</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let storeChartInstance = null;
+
+        // 3.1 Simulated Authentication Rules Engine
+        function handleLogin(event) {
+            event.preventDefault();
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const feedback = document.getElementById('error-feedback');
+
+            if (u === 'admin' && p === 'admin123') {
+                feedback.classList.add('hidden');
+                document.getElementById('auth-view').classList.remove('active');
+                document.getElementById('app-workspace').classList.add('active');
+                
+                // Initialize charting engines immediately upon successful secure entry
+                initChart();
+            } else {
+                feedback.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('app-workspace').classList.remove('active');
+            document.getElementById('auth-view').classList.add('active');
+            
+            if (storeChartInstance) {
+                storeChartInstance.destroy();
+                storeChartInstance = null;
+            }
+        }
+
+        // 3.2 Navigation Route Context Tab Management
+        function switchTab(targetView) {
+            const tabs = ['dashboard', 'products', 'suppliers'];
+            
+            tabs.forEach(t => {
+                const viewEl = document.getElementById(`view-${t}`);
+                const btnEl = document.getElementById(`nav-${t}`);
+                
+                if (t === targetView) {
+                    viewEl.classList.add('active');
+                    if (btnEl) {
+                        btnEl.className = "text-stone-900 border-b-2 border-stone-900 py-5 cursor-pointer";
+                    }
+                } else {
+                    viewEl.classList.remove('active');
+                    if (btnEl) {
+                        btnEl.className = "text-stone-400 hover:text-stone-900 py-5 transition-colors cursor-pointer";
+                    }
+                }
+            });
+        }
+
+        function toggleMobileMenu() {
+            const mm = document.getElementById('mobile-menu');
+            mm.classList.toggle('hidden');
+        }
+
+        // 3.5 Operational Chart Data Visualization Injection Engine
+        function initChart() {
+            const canvasCtx = document.getElementById('storeChart').getContext('2d');
+            
+            if (storeChartInstance) {
+                storeChartInstance.destroy();
+            }
+
+            storeChartInstance = new Chart(canvasCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Furniture (Units)', 'Lighting Units', 'Tech Modules', 'Paper Ledger Lots'],
+                    datasets: [{
+                        label: 'Physical Items In-Stock',
+                        data: [8, 42, 110, 1080],
+                        backgroundColor: '#1c1917', // Elegant stone-900 minimalist fill color
+                        borderRadius: 4,
+                        barThickness: 24
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f5f5f4' },
+                            ticks: { font: { family: 'Plus Jakarta Sans', size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Plus Jakarta Sans', size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
