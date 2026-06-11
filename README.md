@@ -1,6 +1,3 @@
-# im-manage
-IMS566
-
 # IM manage. — Minimalist Store Inventory Management System
 
 **IM manage.** is a clean, high-performance, minimalist store inventory management workspace built as a functional prototype submission for the **IMS566 (Advanced Web Design Development and Content Management)** individual assignment. 
