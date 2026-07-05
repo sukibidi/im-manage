@@ -1,8 +1,6 @@
-# IM manage. — Minimalist Store Inventory Management System
+# IM manage.Minimalist Store Inventory Management System
 
 **IM manage.** is a clean, high-performance, minimalist store inventory management workspace built as a functional prototype submission for the **IMS566 (Advanced Web Design Development and Content Management)** individual assignment. 
-
-The application utilizes a modern Single Page Application (SPA) architecture to handle dynamic tab switching seamlessly without server-side dependencies, optimizing it for fast loading and static hosting engines like GitHub Pages.
 
 ---
 
